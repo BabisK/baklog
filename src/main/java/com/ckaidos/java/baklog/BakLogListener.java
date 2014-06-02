@@ -21,7 +21,6 @@ public class BakLogListener implements ITestListener, ISuiteListener {
 
 	}
 
-	@SuppressWarnings("unused")
 	@Override
 	public void onStart(ITestContext arg0) {
 		String s = arg0.getOutputDirectory() + File.separator + arg0.getName();
