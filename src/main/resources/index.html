@@ -1,5 +1,7 @@
-<!DOCTYPE html>
-<html>
+<!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-4.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
 <head>
 <meta charset="UTF-8">
 <title>TestNG Results</title>
@@ -11,7 +13,7 @@
 			<h1>TestNG Results</h1>
 		</div>
 		<div>
-			<h3>Start: date time End: date time</h3>
+			<h3>Start: <span th:text="${startDate}">5th Nov 2011</span> End: <span th:text="${endDate}">6th Nov 2011</span></h3>
 		</div>
 	</header>
 	<div>

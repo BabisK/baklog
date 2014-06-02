@@ -12,9 +12,16 @@ import org.testng.ISuiteListener;
 import org.testng.ITestContext;
 import org.testng.ITestListener;
 import org.testng.ITestResult;
+import org.thymeleaf.TemplateEngine;
+import org.thymeleaf.context.Context;
+import org.thymeleaf.context.WebContext;
+import org.thymeleaf.templateresolver.FileTemplateResolver;
+import org.thymeleaf.templateresolver.ServletContextTemplateResolver;
+
+import com.beust.jcommander.converters.FileConverter;
 
 public class BakLogListener implements ITestListener, ISuiteListener {
-
+	
 	@Override
 	public void onFinish(ITestContext arg0) {
 		// TODO Auto-generated method stub
@@ -82,9 +89,45 @@ public class BakLogListener implements ITestListener, ISuiteListener {
 		}
 	}
 
+	private static TemplateEngine templateEngine;
+	
 	@Override
 	public void onStart(ISuite arg0) {
+		FileTemplateResolver templateResolver = new FileTemplateResolver();
+        // XHTML is the default mode, but we will set it anyway for better understanding of code
+        templateResolver.setTemplateMode("HTML5");
+        // This will convert "home" to "/WEB-INF/templates/home.html"
+        templateResolver.setPrefix("src/main/resources/");
+        templateResolver.setSuffix(".html");
+        // Set template cache TTL to 1 hour. If not set, entries would live in cache until expelled by LRU
+        templateResolver.setCacheTTLMs(3600000L);
+        
+        templateEngine = new TemplateEngine();
+        templateEngine.setTemplateResolver(templateResolver);
+        
+        Context ctx = new Context();
+        ctx.setVariable("startDate", new Date().toString());
 		String suitName = arg0.getOutputDirectory();
+		File directory = new File(suitName);
+		directory.mkdirs();
+		File indexFile = new File(suitName + File.separator + "index.html");
+		FileWriter fw;
+        try {
+			indexFile.createNewFile();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+        try {
+			fw = new FileWriter(indexFile);
+			templateEngine.process("index", ctx, fw);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+        
+		
+		/*String suitName = arg0.getOutputDirectory();
 		File directory = new File(suitName);
 		directory.mkdirs();
 		File indexFile = new File(suitName + File.separator + "index.html");
@@ -114,6 +157,6 @@ public class BakLogListener implements ITestListener, ISuiteListener {
 			fw.flush();
 		} catch (IOException e) {
 			e.printStackTrace();
-		}
+		}*/
 	}
 }
