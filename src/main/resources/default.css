@@ -1,0 +1,58 @@
+@CHARSET "UTF-8";
+
+h1{
+	text-align: center;
+}
+
+h3{
+	text-align: center;
+}
+
+.tablehead{
+	background-color: blue;
+}
+
+.success{
+	background-color: green;
+}
+
+.failure{
+	background-color: red;
+}
+
+.notrun{
+	background-color: orange;
+}
+
+.datarow {
+	vertical-align: top;
+	height: auto !important;
+}
+
+.data {
+	display: none;
+}
+
+.show {
+	display: none;
+	text-decoration: none;
+}
+
+.hide{
+	text-decoration: none;
+}
+
+.hide:target+.show {
+	display: inline;
+	text-decoration: none;
+}
+
+.hide:target {
+	display: none;
+	text-decoration: none;
+}
+
+.hide:target ~ .data {
+	display: inline;
+	text-decoration: none;
+}
