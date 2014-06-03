@@ -15,13 +15,13 @@ import org.thymeleaf.context.Context;
 import org.thymeleaf.templateresolver.FileTemplateResolver;
 
 public class BakLogListener implements ITestListener, ISuiteListener {
-	
+
 	@Override
-	public void onFinish(ITestContext arg0) {
+	public void onFinish(ITestContext context) {
 		// TODO Auto-generated method stub
-
+		
 	}
-
+	
 	@Override
 	public void onStart(ITestContext arg0) {
 		String s = arg0.getOutputDirectory() + File.separator + arg0.getName();
