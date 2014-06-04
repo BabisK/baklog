@@ -31,9 +31,9 @@
 				</tr>
 			</tfoot>
 			<tbody>
-				<tr th:each="testcase : ${testcases}" th:class="${testcase.result}">
-					<td th:text="${testcase.name}">Test Name</td>
-					<td th:text="${testcase.description}">Blah blah blah blah</td>
+				<tr th:each="testMethod : ${testMethods}" th:class="${testMethod.result}">
+					<td><a href="Test/Method/Method.html" th:href="${testMethod.path}" th:text="${testMethod.name}">Test Name</a></td>
+					<td th:text="${testMethod.description}">Blah blah blah blah</td>
 				</tr>
 			</tbody>
 		</table>
