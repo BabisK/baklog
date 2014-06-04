@@ -1,21 +1,33 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8">
-<title>Insert title here</title>
-<link rel="stylesheet" type="text/css" href="default.css">
+<meta charset="UTF-8" />
+<title th:text="${testName}">Insert title here</title>
+<link rel="stylesheet" type="text/css" href="default.css" />
 </head>
 <body>
 	<header>
-		<div><h1>TestNG Results</h1></div>
-		<div><h3>Start: date time End: date time</h3></div>
-	</header>
-	<div class="datarow">
-		<a href="#hide1" class="hide" id="hide1">+</a> <a href="#show1"
-			class="show" id="show1">-</a> TestCase1
-		<div class="data">
-			<div>Test data</div>
+		<div>
+			<h1 th:text="${testName}">Test Case Results</h1>
 		</div>
+		<div>
+			<h3>
+				Start: <span th:text="${startDate}">5th Nov 2011</span> End: <span
+					th:text="${endDate}">6th Nov 2011</span>
+			</h3>
+		</div>
+	</header>
+	<div>
+		<ul>
+			<li th:each="log : ${logs}"><a href="#hide1" class="hide"
+				id="hide1">+</a> <a href="#show1" class="show" id="show1">-</a><span
+				th:text="${log.name}">TestCase1</span>
+				<div class="data">
+					<div>
+						<span th:text="${log.value}">Test data</span>
+					</div>
+				</div></li>
+		</ul>
 	</div>
 	<footer>
 		<div>End of document</div>

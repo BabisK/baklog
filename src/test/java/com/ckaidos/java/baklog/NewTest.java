@@ -1,15 +1,31 @@
 package com.ckaidos.java.baklog;
 
 import org.testng.ITestContext;
-import org.testng.TestNG;
 import org.testng.annotations.Test;
 
 public class NewTest {
-	@SuppressWarnings("deprecation")
 	@Test
-	public void f(ITestContext m) {
-		// m.get
-		TestNG.getDefault().getSuiteListeners().get(0).onStart(null);
+	public void F2() {
+		BakLogListener.getInstance().addLog("Teeeeeeest", "1764521734572154872154521863548126538451297236549712534971562");
+	}
+	@Test
+	public void f3() {
+
+	}
+	@Test
+	public void f4() {
+		assert false;
+	}
+	@Test
+	public void f5() {
+
+	}
+	@Test
+	public void f6() {
+
+	}
+	@Test
+	public void f7() {
 
 	}
 }

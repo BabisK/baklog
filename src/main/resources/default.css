@@ -20,13 +20,8 @@ h3{
 	background-color: red;
 }
 
-.notrun{
+.skip{
 	background-color: orange;
-}
-
-.datarow {
-	vertical-align: top;
-	height: auto !important;
 }
 
 .data {

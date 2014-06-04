@@ -31,17 +31,9 @@
 				</tr>
 			</tfoot>
 			<tbody>
-				<tr class="success">
-					<td>test</td>
-					<td>desc</td>
-				</tr>
-				<tr class="notrun">
-					<td>test2</td>
-					<td>desc2</td>
-				</tr>
-				<tr class="failure">
-					<td>test3</td>
-					<td>desc3</td>
+				<tr th:each="testcase : ${testcases}" th:class="${testcase.result}">
+					<td th:text="${testcase.name}">Test Name</td>
+					<td th:text="${testcase.description}">Blah blah blah blah</td>
 				</tr>
 			</tbody>
 		</table>
