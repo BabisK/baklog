@@ -9,6 +9,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
 import org.testng.ISuite;
 import org.testng.ISuiteListener;
 import org.testng.ITestContext;
@@ -67,18 +68,31 @@ public class BakLogListener implements ITestListener, ISuiteListener {
 		}
 	}
 
-	//The instance of this object, it's a singleton after all
+	// The instance of this object, it's a singleton after all
 	private static BakLogListener instance;
 
-	//
+	// Thymeleaf objects
 	private FileTemplateResolver templateResolver;
 	private TemplateEngine templateEngine;
-	
+	// Context for the index file
 	private Context indexCtx;
+	// Context for the test method files
 	private Context currentTestMethodCtx;
 
+	// The test methods run in this suite
 	private List<TestMethod> testMethods;
+	// The logs of the current method
 	private List<TestLog> currentTestMethodLog;
+
+	private String rootDirectory;
+	private String indexFile;
+	private String currentTestDirectory;
+	private String currentTestMethodDirectory;
+	private String currentTestMethodFile;
+
+	private String templateCssFile;
+	private String templateIndexFile;
+	private String templateTestFile;
 
 	public static synchronized BakLogListener getInstance() {
 		return (instance != null) ? instance : new BakLogListener();
@@ -90,13 +104,11 @@ public class BakLogListener implements ITestListener, ISuiteListener {
 				throw new IllegalStateException();
 			}
 			instance = this;
-
 			initializeTemplateResolver();
-
 			initializaTemplateEngine();
-
-			testMethods = new ArrayList<TestMethod>();
-			currentTestMethodLog = new ArrayList<TestLog>();
+			templateCssFile = "src/main/resources/default.css";
+			templateIndexFile = "src/main/resources/index.html";
+			templateTestFile = "src/main/resources/Test/Method/Method.html";
 		}
 	}
 
@@ -120,17 +132,15 @@ public class BakLogListener implements ITestListener, ISuiteListener {
 
 	@Override
 	public void onStart(ITestContext testContext) {
-		String testDirectory;
-		if (System.getProperty("BakLogOutput") == null) {
-			testDirectory = testContext.getOutputDirectory();
-		} else {
-			testDirectory = System.getProperty("BakLogOutput") + File.separator
-					+ testContext.getSuite().getName() + File.separator
-					+ testContext.getName();
-		}
+		currentTestDirectory = rootDirectory + File.separator
+				+ testContext.getName();
 
-		File directory = new File(testDirectory);
-		directory.mkdirs();
+		File directory = new File(currentTestDirectory);
+		if (!directory.mkdirs()) {
+			System.err
+					.println(currentTestDirectory
+							+ " could not be created. Maybe it already exists? Contents will be overwritten.");
+		}
 	}
 
 	@Override
@@ -140,28 +150,13 @@ public class BakLogListener implements ITestListener, ISuiteListener {
 
 	@Override
 	public void onTestFailure(ITestResult testResult) {
-		String testMethodFile;
-		if (System.getProperty("BakLogOutput") == null) {
-			testMethodFile = testResult.getTestContext().getOutputDirectory()
-					+ File.separator + testResult.getName() + File.separator
-					+ testResult.getName() + ".html";
-		} else {
-			testMethodFile = System.getProperty("BakLogOutput")
-					+ File.separator
-					+ testResult.getTestContext().getSuite().getName()
-					+ File.separator + testResult.getTestContext().getName()
-					+ File.separator + testResult.getName() + File.separator
-					+ testResult.getName() + ".html";
-		}
-
 		testMethods.add(new TestMethod(testResult.getName(), "desc", "skip",
-				testResult.getTestContext().getName() + File.separator+ testResult.getName() + File.separator
-						+ testResult.getName() + ".html"));
+				currentTestMethodFile));
 		currentTestMethodCtx.setVariable("endDate", testResult.getEndMillis());
 		currentTestMethodCtx.setVariable("logs", currentTestMethodLog);
 
 		try {
-			File testFile = new File(testMethodFile);
+			File testFile = new File(currentTestMethodFile);
 			testFile.createNewFile();
 			FileWriter testFw = new FileWriter(testFile);
 			templateEngine.process("Test" + File.separator + "Method"
@@ -175,31 +170,13 @@ public class BakLogListener implements ITestListener, ISuiteListener {
 
 	@Override
 	public void onTestSkipped(ITestResult testResult) {
-		String testMethodFile;
-		if (System.getProperty("BakLogOutput") == null) {
-			testMethodFile = testResult.getTestContext().getOutputDirectory()
-					+ File.separator + testResult.getName() + File.separator
-					+ testResult.getName() + ".html";
-		} else {
-			testMethodFile = System.getProperty("BakLogOutput")
-					+ File.separator
-					+ testResult.getTestContext().getSuite().getName()
-					+ File.separator + testResult.getTestContext().getName()
-					+ File.separator + testResult.getName() + File.separator
-					+ testResult.getName() + ".html";
-		}
-
 		testMethods.add(new TestMethod(testResult.getName(), "desc", "skip",
-				testResult.getTestContext().getName() + File.separator
-						+ testResult.getName() + File.separator
-						+ testResult.getName() + ".html"));
+				currentTestMethodFile));
 		currentTestMethodCtx.setVariable("endDate", testResult.getEndMillis());
 		currentTestMethodCtx.setVariable("logs", currentTestMethodLog);
 
 		try {
-			File testFile = new File(testMethodFile);
-			testFile.createNewFile();
-			FileWriter testFw = new FileWriter(testFile);
+			FileWriter testFw = new FileWriter(currentTestMethodFile);
 			templateEngine.process("Test" + File.separator + "Method"
 					+ File.separator + "Method", currentTestMethodCtx, testFw);
 			testFw.flush();
@@ -211,55 +188,40 @@ public class BakLogListener implements ITestListener, ISuiteListener {
 
 	@Override
 	public void onTestStart(ITestResult testResult) {
-		String testMethodDirectory;
-		if (System.getProperty("BakLogOutput") == null) {
-			testMethodDirectory = testResult.getTestContext()
-					.getOutputDirectory()
-					+ File.separator
-					+ testResult.getName();
-		} else {
-			testMethodDirectory = System.getProperty("BakLogOutput")
-					+ File.separator
-					+ testResult.getTestContext().getSuite().getName()
-					+ File.separator + testResult.getTestContext().getName()
-					+ File.separator + testResult.getName();
+		// Initialize the log for this method
+		currentTestMethodLog = new ArrayList<TestLog>();
+
+		// Create the directory for this test method
+		currentTestMethodDirectory = currentTestDirectory + File.separator
+				+ testResult.getName();
+		File methodD = new File(currentTestMethodDirectory);
+		if (!methodD.mkdirs()) {
+			System.err
+					.println(currentTestMethodDirectory
+							+ " could not be created. Maybe it already exists? Contents will be overwritten.");
 		}
 
-		File methodD = new File(testMethodDirectory);
-		methodD.mkdirs();
+		// Get the html file name
+		currentTestMethodFile = currentTestMethodDirectory + File.separator
+				+ testResult.getName() + ".html";
 
+		// Create test method context
 		currentTestMethodCtx = new Context();
 
 		currentTestMethodCtx.setVariable("testName", testResult.getName());
-		currentTestMethodCtx.setVariable("startDate", testResult.getStartMillis());
+		currentTestMethodCtx.setVariable("startDate",
+				testResult.getStartMillis());
 	}
 
 	@Override
 	public void onTestSuccess(ITestResult testResult) {
-		String testMethodFile;
-		if (System.getProperty("BakLogOutput") == null) {
-			testMethodFile = testResult.getTestContext().getOutputDirectory()
-					+ File.separator + testResult.getName() + File.separator
-					+ testResult.getName() + ".html";
-		} else {
-			testMethodFile = System.getProperty("BakLogOutput")
-					+ File.separator
-					+ testResult.getTestContext().getSuite().getName()
-					+ File.separator + testResult.getTestContext().getName()
-					+ File.separator + testResult.getName() + File.separator
-					+ testResult.getName() + ".html";
-		}
-
 		testMethods.add(new TestMethod(testResult.getName(), "desc", "success",
-				testResult.getTestContext().getName() + File.separator+ testResult.getName() + File.separator
-						+ testResult.getName() + ".html"));
+				currentTestMethodFile));
 		currentTestMethodCtx.setVariable("endDate", testResult.getEndMillis());
 		currentTestMethodCtx.setVariable("logs", currentTestMethodLog);
 
 		try {
-			File testFile = new File(testMethodFile);
-			testFile.createNewFile();
-			FileWriter testFw = new FileWriter(testFile);
+			FileWriter testFw = new FileWriter(currentTestMethodFile);
 			templateEngine.process("Test" + File.separator + "Method"
 					+ File.separator + "Method", currentTestMethodCtx, testFw);
 			testFw.flush();
@@ -271,20 +233,12 @@ public class BakLogListener implements ITestListener, ISuiteListener {
 
 	@Override
 	public void onFinish(ISuite suite) {
-		String suiteDirectory;
-		if (System.getProperty("BakLogOutput") == null) {
-			suiteDirectory = suite.getOutputDirectory();
-		} else {
-			suiteDirectory = System.getProperty("BakLogOutput")
-					+ File.separator + suite.getName();
-		}
-
+		// Add data to the context
 		indexCtx.setVariable("endDate", new Date().toString());
 		indexCtx.setVariable("testMethods", testMethods);
 
+		// Write the index file
 		try {
-			File indexFile = new File(suiteDirectory + File.separator
-					+ "index.html");
 			FileWriter indexFw = new FileWriter(indexFile);
 			templateEngine.process("index", indexCtx, indexFw);
 			indexFw.flush();
@@ -302,33 +256,46 @@ public class BakLogListener implements ITestListener, ISuiteListener {
 	 */
 	@Override
 	public void onStart(ISuite suite) {
-		String suiteDirectory;
-		if (System.getProperty("BakLogOutput") == null) {
-			suiteDirectory = suite.getOutputDirectory();
-		} else {
-			suiteDirectory = System.getProperty("BakLogOutput")
-					+ File.separator + suite.getName();
-		}
-
+		// Initialize listo of methods for this suite
+		testMethods = new ArrayList<TestMethod>();
+		// Initialize the index file context
 		indexCtx = new Context();
-		indexCtx.setVariable("startDate", new Date().toString());
 
-		File directory = new File(suiteDirectory);
-		directory.mkdirs();
-		try {
-			Files.copy(Paths.get("src/main/resources/default.css"),
-					Paths.get(suiteDirectory + File.separator + "default.css"),
-					StandardCopyOption.REPLACE_EXISTING);
-			File indexFile = new File(suiteDirectory + File.separator
-					+ "index.html");
-			indexFile.createNewFile();
-			FileWriter indexFw = new FileWriter(indexFile);
-			templateEngine.process("index", indexCtx, indexFw);
-			indexFw.flush();
-		} catch (IOException e) {
-			e.printStackTrace();
-			System.exit(-1);
+		// Get the root directory for the site
+		if (System.getProperty("BakLogOutput") == null) {
+			System.err
+					.println("BakLogOutput parameter not defined in JVM. Using the default output directory "
+							+ suite.getOutputDirectory() + ".");
+			rootDirectory = suite.getOutputDirectory() + File.separator;
+		} else {
+			rootDirectory = System.getProperty("BakLogOutput") + File.separator
+					+ suite.getName();
 		}
+
+		// Create the root directory if it does not exist
+		File directory = new File(rootDirectory);
+		if (!directory.mkdirs()) {
+			System.err
+					.println(rootDirectory
+							+ " could not be created. Maybe it already exists? Contents will be overwritten.");
+		}
+
+		// Get the index file
+		indexFile = rootDirectory + File.separator + "index.html";
+
+		// Put the css in place
+		try {
+			Files.copy(Paths.get(templateCssFile),
+					Paths.get(rootDirectory + File.separator + "default.css"),
+					StandardCopyOption.REPLACE_EXISTING);
+		} catch (IOException e1) {
+			System.err.println("Could not copy default.css to " + rootDirectory
+					+ ". The site will mulfunction");
+			e1.printStackTrace();
+		}
+
+		// Add some data to the context
+		indexCtx.setVariable("startDate", new Date().toString());
 	}
 
 	public void addLog(String name, String value) {

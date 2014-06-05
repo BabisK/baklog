@@ -7,6 +7,7 @@ public class NewTest {
 	@Test
 	public void F2() {
 		BakLogListener.getInstance().addLog("Teeeeeeest", "1764521734572154872154521863548126538451297236549712534971562");
+		BakLogListener.getInstance().addLog("Teeeee333eest", "sssssssssssssss");
 	}
 	@Test
 	public void f3() {
@@ -14,6 +15,7 @@ public class NewTest {
 	}
 	@Test
 	public void f4() {
+		BakLogListener.getInstance().addLog("Teeeeeeest", "1764521734572154872154521863548126538451297236549712534971562");
 		assert false;
 	}
 	@Test
