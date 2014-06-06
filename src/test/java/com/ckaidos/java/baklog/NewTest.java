@@ -8,6 +8,8 @@ public class NewTest {
 	public void F2() {
 		BakLogListener.getInstance().addLog("Teeeeeeest", "1764521734572154872154521863548126538451297236549712534971562");
 		BakLogListener.getInstance().addLog("Teeeee333eest", "sssssssssssssss");
+		BakLogListener.getInstance().addImage("My image", "/home/ckaidos/Documents/phi.png");
+		
 	}
 	@Test
 	public void f3() {

@@ -23,8 +23,9 @@
 				id="hide1" th:id="|hide${logStat.index}|">+</a> <a href="#show1" th:href="|#show${logStat.index}|" class="show" id="show1" th:id="|show${logStat.index}|">-</a><span
 				th:text="${log.name}">TestCase1</span>
 				<div class="data">
-					<div>
-						<span th:text="${log.value}">Test data</span>
+					<div th:switch="${log.type}">
+						<span th:case="'text'" th:text="${log.value}">Test data</span>
+						<img alt="Alternate Image Text" src="" th:alt="${log.name}" th:src="${log.value}"/>
 					</div>
 				</div></li>
 		</ul>

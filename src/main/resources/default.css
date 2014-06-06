@@ -12,6 +12,11 @@ table{
 	width: 100%;
 }
 
+img{
+	max-width: 100%;
+	text-align: center;
+}
+
 .tablehead{
 	background-color: blue;
 }

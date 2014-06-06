@@ -4,11 +4,13 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Random;
 
 import org.testng.ISuite;
 import org.testng.ISuiteListener;
@@ -26,18 +28,23 @@ public class BakLogListener implements ITestListener, ISuiteListener {
 		private String result;
 		private String path;
 
+		// Getters used by template engine
+		@SuppressWarnings("unused")
 		public String getDescription() {
 			return description;
 		}
 
+		@SuppressWarnings("unused")
 		public String getResult() {
 			return result;
 		}
 
+		@SuppressWarnings("unused")
 		public String getName() {
 			return name;
 		}
 
+		@SuppressWarnings("unused")
 		public String getPath() {
 			return path;
 		}
@@ -53,18 +60,28 @@ public class BakLogListener implements ITestListener, ISuiteListener {
 	private class TestLog {
 		private String logName;
 		private String logValue;
+		private String logType;
 
-		public TestLog(String name, String value) {
+		public TestLog(String name, String value, String type) {
 			this.logName = name;
 			this.logValue = value;
+			this.logType = type;
 		}
-
+		
+		// Getters used by template engine
+		@SuppressWarnings("unused")
 		public String getName() {
 			return logName;
 		}
 
+		@SuppressWarnings("unused")
 		public String getValue() {
 			return logValue;
+		}
+		
+		@SuppressWarnings("unused")
+		public String getType(){
+			return logType;
 		}
 	}
 
@@ -299,6 +316,19 @@ public class BakLogListener implements ITestListener, ISuiteListener {
 	}
 
 	public void addLog(String name, String value) {
-		currentTestMethodLog.add(new TestLog(name, value));
+		currentTestMethodLog.add(new TestLog(name, value, "text"));
+	}
+	
+	public void addImage(String description, String image_path){
+		String imagePath = currentTestMethodDirectory + File.separator + "images";
+		File imageDirectory = new File(imagePath);
+		imageDirectory.mkdirs();
+		String imageName = description.replaceAll(" ", "") + currentTestMethodLog.size() + image_path.substring(image_path.lastIndexOf('.'));
+		try {
+			Files.copy(Paths.get(image_path), Paths.get(imageDirectory + File.separator + imageName), StandardCopyOption.REPLACE_EXISTING);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		currentTestMethodLog.add(new TestLog(description, "images" + File.separator + imageName, "image"));
 	}
 }
