@@ -25,7 +25,7 @@
 				<div class="data">
 					<div th:switch="${log.type}">
 						<span th:case="'text'" th:text="${log.value}">Test data</span>
-						<img alt="Alternate Image Text" src="" th:alt="${log.name}" th:src="${log.value}"/>
+						<img th:case="'image'" alt="Alternate Image Text" src="" th:alt="${log.name}" th:src="${log.value}"/>
 					</div>
 				</div></li>
 		</ul>
