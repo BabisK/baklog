@@ -1,6 +1,5 @@
 package com.ckaidos.java.baklog;
 
-import org.testng.ITestContext;
 import org.testng.annotations.Test;
 
 public class NewTest {

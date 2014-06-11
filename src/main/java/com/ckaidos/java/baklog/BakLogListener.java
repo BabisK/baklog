@@ -4,13 +4,11 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Random;
 
 import org.testng.ISuite;
 import org.testng.ISuiteListener;
@@ -108,9 +106,6 @@ public class BakLogListener implements ITestListener, ISuiteListener {
 	private String currentTestMethodFile;
 
 	private String templateCssFile;
-	private String templateIndexFile;
-	private String templateTestFile;
-
 	public static synchronized BakLogListener getInstance() {
 		return (instance != null) ? instance : new BakLogListener();
 	}
@@ -124,8 +119,6 @@ public class BakLogListener implements ITestListener, ISuiteListener {
 			initializeTemplateResolver();
 			initializaTemplateEngine();
 			templateCssFile = "src/main/resources/default.css";
-			templateIndexFile = "src/main/resources/index.html";
-			templateTestFile = "src/main/resources/Test/Method/Method.html";
 		}
 	}
 
